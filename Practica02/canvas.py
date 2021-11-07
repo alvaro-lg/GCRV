@@ -1,4 +1,6 @@
 import tkinter as tk
+
+from poligono import Poligono
 from punto import Punto
 from linea import Linea
 from numba import prange
@@ -10,11 +12,14 @@ class Canvas(tk.Canvas):
     def __init__(self, root):
         super().__init__(root, bg=CANVAS_BG, width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
         self.bind("<Button 1>", self.onclick)
+        self.bind("<Button 2>", self.newform)
         self.root = root
         self.scale = root.getscale()
-        self.lineas = dict()
+        self.poligonos = set()
         self.puntosTmp = list()
+        self.poligonoTmp = Poligono()
         self.lineatarget = None
+        self.poligonotarget = None
 
     def onclick(self, event):
 
@@ -43,28 +48,37 @@ class Canvas(tk.Canvas):
 
         if len(self.puntosTmp) >= 2:
             lineatmp = Linea(self.puntosTmp[0], self.puntosTmp[1], self.root.getalgorithm(), self.root.getcolor())
-            self.pintalinea(lineatmp)
+            self.poligonoTmp.addlinea(lineatmp, self.pintalinea(lineatmp))
             self.lineatarget = lineatmp
-            self.puntosTmp[0] = self.puntosTmp[1]
-            self.puntosTmp.pop(1)
-            self.puntosTmp.clear()
+            self.puntosTmp.pop(0)
+
+    def newform(self, event):
+        self.poligonos.add(self.poligonoTmp)
+        self.poligonoTmp = Poligono()
+        self.puntosTmp.clear()
 
     def onclickseleccion(self, punto):
 
         x, y, = self.scalepoint(punto.getX(), punto.getY())
 
         # Recorremos las lineas buscando la del punto
-        for linea in self.lineas.keys():
-            puntos = self.lineas[linea]
-            for punto in puntos:
-                xtemp, ytemp = self.scalepoint(punto.getX(), punto.getY())
-                if x == xtemp and y == ytemp:
-                    self.lineatarget = deepcopy(linea)
-                    self.pintalinea(self.lineatarget)
-                    return
+        for poligono in set.union(self.poligonos, {self.poligonoTmp}):
+            if DEBUG: print('...seleccionando linea targeteada...')
+            for linea in poligono.getlineas().keys():
+                if DEBUG: print(linea)
+                puntos = poligono.getlineas()[linea]
+                for i in puntos:
+                    j, k = self.scalepoint(i.getX(), i.getY())
+                    if x == j and y == k:
+                        self.lineatarget = linea
+                        self.pintalinea(self.lineatarget)
+                        self.poligonotarget = poligono
+                        if DEBUG: print('Pintando linea targeteada: ' + str(self.lineatarget))
+                        return
 
         # Caso de que no se escoja ninnguna linea
         self.lineatarget = None
+        self.poligonotarget = None
 
     def pintalinea(self, linea):
 
@@ -77,17 +91,20 @@ class Canvas(tk.Canvas):
 
         func = switch[linea.getalgoritmo()]
 
-        puntos = func(linea)
-        self.lineas[linea] = puntos
-
-    def pintalinea1(self, linea):
-
-        if DEBUG: print('Algoritmo 1')
-
-        if linea == self.lineatarget and self.root.getmode() == 1:
+        if self.lineatarget is not None and linea.equals(self.lineatarget) and self.root.getmode() == 1:
             color = linea.getcomplementaryColor()
         else:
             color = linea.getcolor()
+
+        puntos = func(linea, color)
+
+        if DEBUG: print(str(len(puntos)) + ' Puntos: ' + str(puntos))
+
+        return puntos
+
+    def pintalinea1(self, linea, color):
+
+        if DEBUG: print('Algoritmo 1')
 
         # Escogemos los puntos arbitrariamente
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
@@ -140,14 +157,9 @@ class Canvas(tk.Canvas):
                     self.pintapixel(x, y, color=color)
         return puntos
 
-    def pintalinea2(self, linea):
+    def pintalinea2(self, linea, color):
 
         if DEBUG: print('Algoritmo 2')
-
-        if linea == self.lineatarget and self.root.getmode() == 1:
-            color = linea.getcomplementaryColor()
-        else:
-            color = linea.getcolor()
 
         # Escogemos los puntos arbitrariamente
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
@@ -206,14 +218,9 @@ class Canvas(tk.Canvas):
         return puntos
 
 
-    def pintalinea3(self, linea):
+    def pintalinea3(self, linea, color):
 
         if DEBUG: print('Algoritmo 3')
-
-        if linea == self.lineatarget and self.root.getmode() == 1:
-            color = linea.getcomplementaryColor()
-        else:
-            color = linea.getcolor()
 
         # Escogemos los puntos arbitrariamente
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
@@ -298,23 +305,24 @@ class Canvas(tk.Canvas):
 
     def refresh(self):
         super().delete("all")
-        for linea in self.lineas.keys():
-            self.pintalinea(linea)
+        for poligono in set.union(self.poligonos, {self.poligonoTmp}):
+            for linea in poligono.getlineas().keys():
+                poligono.addlinea(linea, self.pintalinea(linea))
 
     def scalepoint(self, x, y):
         return x - (x % self.scale),\
                y - (y % self.scale)
 
-    def getlineas(self):
-        return self.lineas
+    def getpoligonos(self):
+        return self.poligonos
 
-    def setlineas(self, lineasvalues):
-        self.lineas = lineasvalues
+    def setpoligonos(self, poligonosvalues):
+        self.poligonos = poligonosvalues
         self.refresh()
         self.lineatarget = None
+        self.poligonotarget = None
         
     def settargetcolor(self, color):
         if self.lineatarget is not None and self.root.getmode() == 1:
             self.lineatarget.setcolor(color)
             self.refresh()
-            self.pintalinea(self.lineatarget)

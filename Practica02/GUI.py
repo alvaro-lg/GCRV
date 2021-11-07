@@ -3,6 +3,7 @@ from canvas import Canvas
 from constantes import *
 from tkinter.colorchooser import askcolor
 from tkinter import ttk
+from PIL import Image, ImageTk
 import tkinter as tk
 from snapshot import snapshot
 
@@ -37,6 +38,25 @@ class GUI(tk.Frame):
         self.algorithmselector = ttk.Combobox(self, state="readonly", values=list(ALGORITMOS.keys()), width=10)
         self.algorithmselector.current(0)
 
+        # Play-Pause
+        original_play_img = Image.open("./resources/play.png")
+        original_play_img = original_play_img.resize((30, 30), Image.ANTIALIAS)
+        play_img = ImageTk.PhotoImage(original_play_img)
+        original_pause_img = Image.open("./resources/pause.png")
+        original_pause_img = original_pause_img.resize((30, 30), Image.ANTIALIAS)
+        pause_img = ImageTk.PhotoImage(original_pause_img)
+        self.playbtn = tk.Button(self, width=40, height=40, image=play_img, command=self.playpause)
+        self.imageplay = play_img
+        self.imagepause = pause_img
+        self.playing = False
+
+        # Stop
+        original_stop_img = Image.open("./resources/stop.png")
+        original_stop_img = original_stop_img.resize((30, 30), Image.ANTIALIAS)
+        stop_img = ImageTk.PhotoImage(original_stop_img)
+        self.stopbtn = tk.Button(self, width=40, height=40, image=stop_img, command=self.stop)
+        self.stopbtn.image = stop_img
+
         # Color pickers
         self.color1 = tk.Canvas(self, width=60, height=60, bg=DEFAULT_PRIMARY_COLOR)
         self.color1.bind("<Button 1>", self.pickcolor)
@@ -55,8 +75,10 @@ class GUI(tk.Frame):
         self.modeselector.grid(column=4, row=2, pady=(0, 10), sticky=(tk.E))
         self.textalgorithm.grid(column=3, row=3, pady=(0, 300), sticky=(tk.N, tk.W))
         self.algorithmselector.grid(column=4, row=3, pady=(0, 300), sticky=(tk.N, tk.E))
-        self.color1.grid(column=3, row=5, pady=(0, 50), sticky=(tk.E))
-        self.color2.grid(column=4, row=5, pady=(0, 50), sticky=(tk.W))
+        self.playbtn.grid(column=3, row=4, pady=(0, 50), sticky=(tk.E))
+        self.stopbtn.grid(column=4, row=4, pady=(0, 50), sticky=(tk.W))
+        self.color1.grid(column=3, row=6, sticky=(tk.E))
+        self.color2.grid(column=4, row=6, sticky=(tk.W))
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -96,7 +118,7 @@ class GUI(tk.Frame):
 
         if len(self.snaps) > 0 and self.snapsNum - 1 > 0:
             snap = self.snaps[self.snapsNum - 1]
-            self.canvas.setlineas(snap.getvalues())
+            self.canvas.setpoligonos(snap.getvalues())
             self.canvas.update_idletasks()
             self.snapsNum -= 1
 
@@ -105,11 +127,21 @@ class GUI(tk.Frame):
 
         if len(self.snaps) > 0 and self.snapsNum < len(self.snaps):
             snap = self.snaps[self.snapsNum + 1]
-            self.canvas.setlineas(snap.getvalues())
+            self.canvas.setpoligonos(snap.getvalues())
             self.canvas.update_idletasks()
             self.snapsNum += 1
 
     def takesnapshot(self):
         if DEBUG: print('Snapshot')
-        self.snaps.append(snapshot(deepcopy(self.canvas.getlineas())))
+        self.snaps.append(snapshot(deepcopy(self.canvas.getpoligonos())))
         self.snapsNum += 1
+
+    def playpause(self):
+        self.playing = not self.playing
+        if self.playing:
+            self.playbtn.configure(image=self.imagepause)
+        else:
+            self.playbtn.configure(image=self.imageplay)
+
+    def stop(self):
+        pass

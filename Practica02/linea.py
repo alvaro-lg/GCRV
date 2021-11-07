@@ -4,6 +4,7 @@ class Linea:
         self.end = punto2
         self.algoritmo = algoritmo
         self.color = color
+        self.animations = dict()
 
     def getstart(self):
         return self.start
@@ -36,3 +37,16 @@ class Linea:
         rgb = (my_hex[0:2], my_hex[2:4], my_hex[4:6])
         comp = ['%02X' % (255 - int(a, 16)) for a in rgb]
         return '#' + ''.join(comp)
+
+    def equals(self, linea):
+        if self.start.getX() == linea.getstart().getX() and self.end.getX() == linea.getend().getX() \
+            and self.start.getY() == linea.getstart().getY() and self.end.getY() == linea.getend().getY():
+            return True
+        else:
+            return False
+
+    def addanimmation(self, animation):
+        self.animations[animation.getkey()] = animation
+
+    def removeanimmation(self, animation):
+        self.animations.pop(animation.getkey(), None)
