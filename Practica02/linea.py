@@ -4,7 +4,6 @@ class Linea:
         self.end = punto2
         self.algoritmo = algoritmo
         self.color = color
-        self.animations = dict()
 
     def getstart(self):
         return self.start
@@ -45,8 +44,5 @@ class Linea:
         else:
             return False
 
-    def addanimmation(self, animation):
-        self.animations[animation.getkey()] = animation
-
-    def removeanimmation(self, animation):
-        self.animations.pop(animation.getkey(), None)
+    def __repr__(self):
+        return '(Start: ' + str(self.start) + ', End: ' + str(self.end) + ')'

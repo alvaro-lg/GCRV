@@ -1,6 +1,7 @@
-DEBUG = 1
+DEBUG = 0
 DEFAULT_SCALE = 1
-DEFAULT_ALGORITHM = 1
+DEFAULT_ALGORITHM = 0
+DEFAULT_MODE = 0
 DEFAULT_COLOR = '#FF0000' # Red
 DEFAULT_PRIMARY_COLOR = '#000000' # Black
 DEFAULT_SECONDARY_COLOR = '#FF0000' # Red
@@ -12,4 +13,6 @@ MIN_RES = 1
 MAX_RES = 64
 MODOS = {"Edición" : 0, "Selección" : 1}
 ALGORITMOS = {"Direct Scan Conversion" : 0, "Digital Differential Analyzer (DDA)" : 1, "Bresenham’s algorithm" : 2}
+CABECERA_ANIMACIONES = ["Animacion", "Comienzo", "Final"]
 FRAMERATE = 60
+TIPOS_ANIMACION = {"Translation" : 1, "Scaling" : 2, "Rotation" : 3, "Shearing" : 4, "Horizontal Reflexion" : 5, "Vertical Reflexion" : 6}

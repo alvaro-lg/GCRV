@@ -6,6 +6,7 @@ from linea import Linea
 from numba import prange
 from constantes import *
 from copy import deepcopy
+from snapshot import Snapshot
 
 class Canvas(tk.Canvas):
 
@@ -24,9 +25,6 @@ class Canvas(tk.Canvas):
     def onclick(self, event):
 
         self.root.takesnapshot()
-
-        for i in range(self.root.snapsNum + 1, len(self.root.snaps)):
-            self.root.snaps[i] = None
 
         punto = Punto(int(event.x - (CANVAS_WIDTH / 2)), int(-(event.y - (CANVAS_HEIGHT / 2))))
 
@@ -53,7 +51,7 @@ class Canvas(tk.Canvas):
             self.puntosTmp.pop(0)
 
     def newform(self, event):
-        self.poligonos.add(self.poligonoTmp)
+        self.poligonos.add(deepcopy(self.poligonoTmp))
         self.poligonoTmp = Poligono()
         self.puntosTmp.clear()
 
@@ -73,12 +71,14 @@ class Canvas(tk.Canvas):
                         self.lineatarget = linea
                         self.pintalinea(self.lineatarget)
                         self.poligonotarget = poligono
+                        self.root.setanimationsvalues(self.poligonotarget.getanimaciones())
                         if DEBUG: print('Pintando linea targeteada: ' + str(self.lineatarget))
                         return
 
         # Caso de que no se escoja ninnguna linea
         self.lineatarget = None
         self.poligonotarget = None
+        self.root.setanimationsvalues([])
 
     def pintalinea(self, linea):
 
@@ -305,9 +305,10 @@ class Canvas(tk.Canvas):
 
     def refresh(self):
         super().delete("all")
-        for poligono in set.union(self.poligonos, {self.poligonoTmp}):
-            for linea in poligono.getlineas().keys():
-                poligono.addlinea(linea, self.pintalinea(linea))
+        if self.poligonos is not None and self.poligonoTmp is not None:
+            for poligono in set.union(self.poligonos, {self.poligonoTmp}):
+                for linea in poligono.getlineas().keys():
+                    poligono.addlinea(linea, self.pintalinea(linea))
 
     def scalepoint(self, x, y):
         return x - (x % self.scale),\
@@ -317,12 +318,18 @@ class Canvas(tk.Canvas):
         return self.poligonos
 
     def setpoligonos(self, poligonosvalues):
-        self.poligonos = poligonosvalues
+        self.poligonos, self.puntosTmp, self.poligonoTmp, self.lineatarget, self.poligonotarget = poligonosvalues.getvalues()
+        print("Nuevos valores de los poligonos (" + str(len(self.poligonos)) + " poligonos en total): " + str(self.poligonos))
         self.refresh()
-        self.lineatarget = None
-        self.poligonotarget = None
         
     def settargetcolor(self, color):
         if self.lineatarget is not None and self.root.getmode() == 1:
             self.lineatarget.setcolor(color)
             self.refresh()
+
+    def getsnapshot(self):
+        return Snapshot(deepcopy(self.poligonos), deepcopy(self.puntosTmp), deepcopy(self.poligonoTmp),\
+                        deepcopy(self.lineatarget), deepcopy(self.poligonotarget))
+
+    def getpoligonotarget(self):
+        return self.poligonotarget
