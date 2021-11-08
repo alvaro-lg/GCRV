@@ -15,4 +15,5 @@ MODOS = {"Edición" : 0, "Selección" : 1}
 ALGORITMOS = {"Direct Scan Conversion" : 0, "Digital Differential Analyzer (DDA)" : 1, "Bresenham’s algorithm" : 2}
 CABECERA_ANIMACIONES = ["Animacion", "Comienzo", "Final"]
 FRAMERATE = 60
-TIPOS_ANIMACION = {"Translation" : 1, "Scaling" : 2, "Rotation" : 3, "Shearing" : 4, "Horizontal Reflexion" : 5, "Vertical Reflexion" : 6}
+TIPOS_ANIMACION = {"Translation" : 0, "Scaling" : 1, "Rotation" : 2, "Shearing" : 3, "Horizontal Reflexion" : 4, "Vertical Reflexion" : 5}
+DEGREES_TO_RADIANS = float(57.2958)

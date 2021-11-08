@@ -1,4 +1,8 @@
+import time
 import tkinter as tk
+from datetime import datetime
+
+from numba.cuda import target
 
 from poligono import Poligono
 from punto import Punto
@@ -21,6 +25,7 @@ class Canvas(tk.Canvas):
         self.poligonoTmp = Poligono()
         self.lineatarget = None
         self.poligonotarget = None
+        self.playing = False
 
     def onclick(self, event):
 
@@ -56,7 +61,8 @@ class Canvas(tk.Canvas):
         self.puntosTmp.clear()
 
     def onclickseleccion(self, punto):
-
+        
+        self.newform(None)
         x, y, = self.scalepoint(punto.getX(), punto.getY())
 
         # Recorremos las lineas buscando la del punto
@@ -110,7 +116,7 @@ class Canvas(tk.Canvas):
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
         endX, endY = linea.getend().getX(), linea.getend().getY()
 
-        puntos = set()
+        puntos = list()
 
         # Caso de la linea vertical
         if startX == endX:
@@ -123,7 +129,7 @@ class Canvas(tk.Canvas):
             x = int(round(startX, 0))
 
             for y in prange(startY, endY + sentido, sentido):
-                puntos.add(Punto(x, y))
+                puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
         else:
 
@@ -141,7 +147,7 @@ class Canvas(tk.Canvas):
                 for x in prange(startX, endX + sentido, sentido):
                     ytrue = m * x + b
                     y = int(round(ytrue, 0))
-                    puntos.add(Punto(x, y))
+                    puntos.append(Punto(x, y))
                     self.pintapixel(x, y, color=color)
             else:
 
@@ -153,7 +159,7 @@ class Canvas(tk.Canvas):
                 for y in prange(startY, endY + sentido, sentido):
                     xtrue = (y - b) / m
                     x = int(round(xtrue, 0))
-                    puntos.add(Punto(x, y))
+                    puntos.append(Punto(x, y))
                     self.pintapixel(x, y, color=color)
         return puntos
 
@@ -165,7 +171,7 @@ class Canvas(tk.Canvas):
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
         endX, endY = linea.getend().getX(), linea.getend().getY()
 
-        puntos = set()
+        puntos = list()
 
         # Caso de la linea vertical
         if startX == endX:
@@ -178,7 +184,7 @@ class Canvas(tk.Canvas):
             x = int(round(startX, 0))
 
             for y in prange(startY, endY + sentido, sentido):
-                puntos.add(Punto(x, y))
+                puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
         else:
 
@@ -198,7 +204,7 @@ class Canvas(tk.Canvas):
                 for x in prange(startX, endX + sentido, sentido):
                     ytrue = ytrue + (m * sentido)
                     y = int(round(ytrue, 0))
-                    puntos.add(Punto(x, y))
+                    puntos.append(Punto(x, y))
                     self.pintapixel(x, y, color=color)
             else:
 
@@ -212,7 +218,7 @@ class Canvas(tk.Canvas):
                 for y in prange(startY, endY + sentido, sentido):
                     xtrue = xtrue + ((1 / m) * sentido)
                     x = int(round(xtrue, 0))
-                    puntos.add(Punto(x, y))
+                    puntos.append(Punto(x, y))
                     self.pintapixel(x, y, color=color)
 
         return puntos
@@ -226,7 +232,7 @@ class Canvas(tk.Canvas):
         startX, startY = linea.getstart().getX(), linea.getstart().getY()
         endX, endY = linea.getend().getX(), linea.getend().getY()
 
-        puntos = set()
+        puntos = list()
 
         # Caso de la linea vertical
         if startX == endX:
@@ -239,7 +245,7 @@ class Canvas(tk.Canvas):
             x = int(round(startX, 0))
 
             for y in prange(startY, endY + sentido, sentido):
-                puntos.add(Punto(x, y))
+                puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
 
         else:
@@ -270,7 +276,7 @@ class Canvas(tk.Canvas):
             numerator = longest >> 1
 
             for i in prange(0, longest, 1):
-                puntos.add(Punto(startX, startY))
+                puntos.append(Punto(startX, startY))
                 self.pintapixel(startX, startY, color=color)
                 numerator += shortest
                 if not (numerator < longest):
@@ -305,10 +311,13 @@ class Canvas(tk.Canvas):
 
     def refresh(self):
         super().delete("all")
-        if self.poligonos is not None and self.poligonoTmp is not None:
-            for poligono in set.union(self.poligonos, {self.poligonoTmp}):
-                for linea in poligono.getlineas().keys():
-                    poligono.addlinea(linea, self.pintalinea(linea))
+        self.pintapoligonos(set.union(self.poligonos, {self.poligonoTmp}))
+
+    def pintapoligonos(self, poligonos):
+        for poligono in poligonos:
+            for linea in poligono.getlineas().keys():
+                poligono.addlinea(linea, self.pintalinea(linea))
+
 
     def scalepoint(self, x, y):
         return x - (x % self.scale),\
@@ -333,3 +342,46 @@ class Canvas(tk.Canvas):
 
     def getpoligonotarget(self):
         return self.poligonotarget
+
+    def play(self):
+        self.playing = True
+        self.timeiter = float(0)
+        self.poligonosanimated = deepcopy(self.poligonos)
+
+        period = float(1 / FRAMERATE) * 1000
+        endtime = max(j.getend() for i in self.poligonosanimated for j in i.getanimaciones())
+
+        while self.playing and self.timeiter <= (endtime * 1000):
+            t_start = time.time()
+            self.newframe()
+            self.timeiter += period
+            self.root.master.update()
+            t_end = time.time()
+            time.sleep(period / 1000 - (t_end - t_start) if period / 1000 - (t_end - t_start) > 0 else 0)
+
+    def pause(self):
+        self.playing = False
+
+    def newframe(self):
+
+        super().delete('all')
+
+        if DEBUG: print('Nuevo Frame: ' + str(self.timeiter / 1000) + 's')
+        if DEBUG: print(self.poligonosanimated)
+
+        for poligono in self.poligonosanimated:
+            for animation in poligono.getanimaciones():
+                for linea in poligono.getlineas().keys():
+                    self.pintalinea(animation.applyanimation(linea, self.timeiter / 1000))
+
+    def stop(self):
+        self.timeiter = float(0)
+        self.refresh()
+        self.playing = False
+
+    def isplaying(self):
+        return self.playing
+
+    def addanimacion(self, animation):
+        if DEBUG: print('Animacion ' + str(animation.gettype()) + ' anhiadida a poligono: ' + str(self.poligonotarget))
+        self.poligonotarget.addanimacion(animation)

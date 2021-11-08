@@ -8,7 +8,6 @@ from tkinter.colorchooser import askcolor
 from tkinter import ttk
 from PIL import Image, ImageTk
 import tkinter as tk
-import time
 
 
 class GUI(tk.Frame):
@@ -67,7 +66,6 @@ class GUI(tk.Frame):
         self.playbtn = tk.Button(self, width=40, height=40, image=play_img, command=self.playpause)
         self.imageplay = play_img
         self.imagepause = pause_img
-        self.playing = False
 
         # Stop
         original_stop_img = Image.open("./resources/stop.png")
@@ -155,28 +153,15 @@ class GUI(tk.Frame):
         self.snapsRedo.clear()
 
     def playpause(self):
-        self.playing = not self.playing
-        if not self.playing:
+        if self.canvas.isplaying():
             self.playbtn.configure(image=self.imageplay)
+            self.canvas.pause()
         else:
             self.playbtn.configure(image=self.imagepause)
-
-            # TODO: Trasladar toda la logica de la reproduccion al canvas
-            # TODO: Implementar transformaciones
-            period = float(1 / FRAMERATE) * 1000000
-            endtime = max([j.getend() for i in self.canvas.getpoligonos() for j in i.getanimaciones()])
-
-            while self.playing:
-                t_start = time.time()
-                print('frame')
-                t_end = time.time()
-                if t_start + period < t_end:
-                    time.sleep(t_end - (t_start + period))
-
+            self.canvas.play()
 
     def stop(self):
-        self.playing = False
-        self.timeiter = 0
+        self.canvas.stop()
 
     def setanimationsvalues(self, animations):
         self.animationspanel.delete(*self.animationspanel.get_children())
@@ -223,9 +208,9 @@ class GUI(tk.Frame):
             self.form.btnanhiadir.grid(column=6, row=1, padx=(0, 30), sticky=(tk.N, tk.E, tk.W))
 
     def addanimation(self):
-        if float(self.form.endtime.get()) > float(self.form.starttime.get()) > 0:
+        if float(self.form.endtime.get()) > float(self.form.starttime.get()) >= 0:
             animation = Animation(self.form.tiposelector.current(), float(self.form.starttime.get()),
                                   float(self.form.endtime.get()), int(self.form.vecx.get()), int(self.form.vecy.get()))
-            self.poligonoanimated.addanimacion(animation)
-            self.setanimationsvalues(self.poligonoanimated.getanimaciones())
+            self.canvas.addanimacion(animation)
+            self.setanimationsvalues(self.canvas.getpoligonotarget().getanimaciones())
             self.form.destroy()
