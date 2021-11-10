@@ -23,6 +23,8 @@ class Canvas(tk.Canvas):
         self.poligonos = set()
         self.puntosTmp = list()
         self.poligonoTmp = Poligono()
+        self.timeiter = float(0)
+        self.period = float(1 / FRAMERATE) * 1000
         self.lineatarget = None
         self.poligonotarget = None
         self.playing = False
@@ -328,8 +330,9 @@ class Canvas(tk.Canvas):
 
     def setpoligonos(self, poligonosvalues):
         self.poligonos, self.puntosTmp, self.poligonoTmp, self.lineatarget, self.poligonotarget = poligonosvalues.getvalues()
-        print("Nuevos valores de los poligonos (" + str(len(self.poligonos)) + " poligonos en total): " + str(self.poligonos))
+        if DEBUG: print("Nuevos valores de los poligonos (" + str(len(self.poligonos)) + " poligonos en total): " + str(self.poligonos))
         self.refresh()
+        self.root.setanimationsvalues(self.poligonotarget.getanimaciones())
         
     def settargetcolor(self, color):
         if self.lineatarget is not None and self.root.getmode() == 1:
@@ -345,39 +348,48 @@ class Canvas(tk.Canvas):
 
     def play(self):
         self.playing = True
-        self.timeiter = float(0)
-        self.poligonosanimated = deepcopy(self.poligonos)
+        endtime = 0
 
-        period = float(1 / FRAMERATE) * 1000
-        endtime = max(j.getend() for i in self.poligonosanimated for j in i.getanimaciones())
+        if len(self.poligonos) > 0:
+            poligonosanimated = deepcopy(self.poligonos)
+            finales = [j.getend() for i in poligonosanimated for j in i.getanimaciones()]
 
-        while self.playing and self.timeiter <= (endtime * 1000):
-            t_start = time.time()
-            self.newframe()
-            self.timeiter += period
-            self.root.master.update()
-            t_end = time.time()
-            time.sleep(period / 1000 - (t_end - t_start) if period / 1000 - (t_end - t_start) > 0 else 0)
+            if len(finales) > 0:
+                endtime = max(finales)
+
+                while self.playing and self.timeiter <= (endtime * 1000):
+                    t_start = time.time()
+                    self.newframe(poligonosanimated)
+                    self.timeiter += self.period
+                    self.root.master.update()
+                    t_end = time.time()
+                    time.sleep(self.period / 1000 - (t_end - t_start) if self.period / 1000 - (t_end - t_start) > 0 else 0)
+
+        if self.timeiter > (endtime * 1000) or endtime == 0:
+            self.timeiter = float(0)
+            self.root.playpause()
 
     def pause(self):
         self.playing = False
 
-    def newframe(self):
+    def newframe(self, poligonosanimated):
 
         super().delete('all')
 
         if DEBUG: print('Nuevo Frame: ' + str(self.timeiter / 1000) + 's')
-        if DEBUG: print(self.poligonosanimated)
+        if DEBUG: print(poligonosanimated)
 
-        for poligono in self.poligonosanimated:
-            for animation in poligono.getanimaciones():
-                for linea in poligono.getlineas().keys():
-                    self.pintalinea(animation.applyanimation(linea, self.timeiter / 1000))
+        for poligono in poligonosanimated:
+            for linea in poligono.getlineas().keys():
+                newLinea = deepcopy(linea)
+                for animation in poligono.getanimaciones():
+                    newLinea = animation.applyanimation(newLinea, self.timeiter / 1000)
+                self.pintalinea(newLinea)
 
     def stop(self):
         self.timeiter = float(0)
+        if self.playing: self.root.playpause()
         self.refresh()
-        self.playing = False
 
     def isplaying(self):
         return self.playing
@@ -385,3 +397,13 @@ class Canvas(tk.Canvas):
     def addanimacion(self, animation):
         if DEBUG: print('Animacion ' + str(animation.gettype()) + ' anhiadida a poligono: ' + str(self.poligonotarget))
         self.poligonotarget.addanimacion(animation)
+
+    def removeanimacion(self, animation):
+        if DEBUG: print('Animacion ' + str(animation.gettype()) + ' eliminada de poligono: ' + str(self.poligonotarget))
+        self.poligonotarget.removeanimacion(animation)
+
+    def preview(self, animacion):
+        self.poligonotarget.addanimacion(deepcopy(animacion))
+        self.timeiter = float((animacion.getstart() * 1000))
+        self.play()
+        self.poligonotarget.removeanimacion(animacion)

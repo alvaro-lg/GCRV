@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 
-from constantes import DEBUG, DEGREES_TO_RADIANS
+from constantes import DEBUG
 from linea import Linea
 from punto import Punto
 from math import *
@@ -38,15 +40,14 @@ class Animation:
             1: self.applyscaling,
             2: self.applyrotation,
             3: self.applyshearing,
-            4: self.applyhreflexion,
-            5: self.applyvreflexion
+            4: self.applyreflexion,
         }
 
         if DEBUG: print('Aplicando animacion: ' + str(self.type))
 
-        self.xTime = time
-        newVecX = (self.vecX * time) / self.endTime
-        newVecY = (self.vecY * time) / self.endTime
+        self.timepercentage = ((time - self.startTime) / (self.endTime - self.startTime))
+        newVecX = self.vecX * self.timepercentage
+        newVecY = self.vecY * self.timepercentage
 
         return switch[self.type](linea, newVecX, newVecY)
 
@@ -82,10 +83,21 @@ class Animation:
         unit_vector_1 = vector_1 / np.linalg.norm(vector_1)
         unit_vector_2 = vector_2 / np.linalg.norm(vector_2)
         dot_product = np.dot(unit_vector_1, unit_vector_2)
-        beta = np.arccos(dot_product) * DEGREES_TO_RADIANS
-        alpha = (self.xTime * beta) / self.endTime
+        alpha = abs(np.arccos(dot_product) - (2 * math.pi if dot_product >= 0 else 0)) * self.timepercentage
 
         matrix = np.array([[cos(alpha), -sin(alpha), 0], [sin(alpha), cos(alpha), 0], [0, 0, 1]])
+        p1 = np.array([linea.getstart().getX(), linea.getstart().getY(), 1])
+        p2 = np.array([linea.getend().getX(), linea.getend().getY(), 1])
+
+        newStart = matrix.T @ p1.T
+        newEnd = matrix.T @ p2.T
+
+        return Linea(Punto(int(newStart[0]), int(newStart[1])), Punto(int(newEnd[0]), int(newEnd[1])), \
+                     linea.getalgoritmo(), linea.getcolor())
+
+    def applyshearing(self, linea, newVecX, newVecY):
+
+        matrix = np.array([[1, newVecX, 0], [newVecY, 1, 0], [0, 0, 1]])
         p1 = np.array([linea.getstart().getX(), linea.getstart().getY(), 1])
         p2 = np.array([linea.getend().getX(), linea.getend().getY(), 1])
 
@@ -95,11 +107,23 @@ class Animation:
         return Linea(Punto(int(newStart[0]), int(newStart[1])), Punto(int(newEnd[0]), int(newEnd[1])), \
                      linea.getalgoritmo(), linea.getcolor())
 
-    def applyshearing(self, linea, newVecX, newVecY):
-        pass
+    def applyreflexion(self, linea, newVecX, newVecY):
 
-    def applyhreflexion(self, linea, newVecX, newVecY):
-        pass
+        vector_1 = [0, 1]
+        vector_2 = [newVecX, newVecY]
 
-    def applyvreflexion(self, linea, newVecX, newVecY):
-        pass
+        unit_vector_1 = vector_1 / np.linalg.norm(vector_1)
+        unit_vector_2 = vector_2 / np.linalg.norm(vector_2)
+        dot_product = np.dot(unit_vector_1, unit_vector_2)
+        alpha = abs(np.arccos(dot_product) - (2 * math.pi if dot_product >= 0 else 0))
+
+        matrix = np.array([[cos(2 * alpha), sin(2 * alpha), 0], [sin(2 * alpha), -cos(2 * alpha), 0], [0, 0, 1]])
+        p1 = np.array([linea.getstart().getX(), linea.getstart().getY(), 1])
+        p2 = np.array([linea.getend().getX(), linea.getend().getY(), 1])
+
+
+        newStart = matrix.T @ p1.T
+        newEnd = matrix.T @ p2.T
+
+        return Linea(Punto(int(newStart[0]), int(newStart[1])), Punto(int(newEnd[0]), int(newEnd[1])), \
+                     linea.getalgoritmo(), linea.getcolor())

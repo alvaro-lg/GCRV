@@ -44,7 +44,7 @@ class GUI(tk.Frame):
         # Color pickers
         self.color1 = tk.Canvas(self, width=50, height=50, bg=DEFAULT_PRIMARY_COLOR)
         self.color1.bind("<Button 1>", self.pickcolor)
-        self.color2 = tk.Canvas(self, width=30, height=30, bg=DEFAULT_SECONDARY_COLOR)
+        self.color2 = tk.Canvas(self, width=35, height=35, bg=DEFAULT_SECONDARY_COLOR)
         self.color2.bind("<Button 1>", self.switchcolors)
 
         # Panel donde se muestran las animaciones del poligono targeteado
@@ -189,7 +189,7 @@ class GUI(tk.Frame):
             self.form.vecy = tk.Entry(self.form, width=10, highlightbackground=self.bg)
             self.form.tiposelector.current(0)
             self.form.btnprevisualizar = tk.Button(self.form, text="Previsualizar animación", bg=self.bg,
-                                          highlightbackground=self.bg, padx=5, pady=5)
+                                          highlightbackground=self.bg, padx=5, pady=5, command=self.previsualiza)
             self.form.btnanhiadir = tk.Button(self.form, text="Añadir animación", bg=self.bg,
                                           highlightbackground=self.bg, padx=5, pady=5, command=self.addanimation)
 
@@ -214,3 +214,10 @@ class GUI(tk.Frame):
             self.canvas.addanimacion(animation)
             self.setanimationsvalues(self.canvas.getpoligonotarget().getanimaciones())
             self.form.destroy()
+            self.canvas.refresh()
+
+    def previsualiza(self):
+        if float(self.form.endtime.get()) > float(self.form.starttime.get()) >= 0:
+            animation = Animation(self.form.tiposelector.current(), float(self.form.starttime.get()),
+                                  float(self.form.endtime.get()), int(self.form.vecx.get()), int(self.form.vecy.get()))
+            self.canvas.preview(animation)

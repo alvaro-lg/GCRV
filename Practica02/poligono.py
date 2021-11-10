@@ -22,6 +22,9 @@ class Poligono:
     def addanimacion(self, animacion):
         self.animaciones.append(animacion)
 
-    def removeanimmacion(self, animacion):
-        self.animaciones.remove(animacion)
+    def removeanimacion(self, animacion):
+        for a in self.animaciones:
+            if animacion.getkey() == a.getkey():
+                self.animaciones.remove(a)
+                return
 
