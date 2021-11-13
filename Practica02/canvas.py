@@ -1,9 +1,5 @@
 import time
 import tkinter as tk
-from datetime import datetime
-
-from numba.cuda import target
-
 from poligono import Poligono
 from punto import Punto
 from linea import Linea
@@ -332,7 +328,7 @@ class Canvas(tk.Canvas):
         self.poligonos, self.puntosTmp, self.poligonoTmp, self.lineatarget, self.poligonotarget = poligonosvalues.getvalues()
         if DEBUG: print("Nuevos valores de los poligonos (" + str(len(self.poligonos)) + " poligonos en total): " + str(self.poligonos))
         self.refresh()
-        self.root.setanimationsvalues(self.poligonotarget.getanimaciones())
+        if self.poligonotarget is not None: self.root.setanimationsvalues(self.poligonotarget.getanimaciones())
         
     def settargetcolor(self, color):
         if self.lineatarget is not None and self.root.getmode() == 1:
