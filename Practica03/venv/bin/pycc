@@ -1,0 +1,3 @@
+#!/Users/alvarolopezgarcia/Desktop/Documentos Universidad/4o Curso/1er Custrimestre/Gráficos por Computador y Realidad Virtual/Prácticas/Practica01/venv/bin/python
+from numba.pycc import main
+main()
