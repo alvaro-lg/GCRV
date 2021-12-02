@@ -9,6 +9,8 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import tkinter as tk
 
+from fractal import Fractal
+
 
 class GUI(tk.Frame):
     def __init__(self, bg_color=GUI_BG, master=None):
@@ -78,12 +80,16 @@ class GUI(tk.Frame):
         self.btnanimation = tk.Button(self, text="Añadir animación", bg=self.bg,
                                       highlightbackground=self.bg, padx=10, pady=10, command=self.animationform)
 
+        # Añadir animaciones
+        self.btnfractal = tk.Button(self, text="Añadir fractal", bg=self.bg,
+                                      highlightbackground=self.bg, padx=10, pady=10, command=self.fractalform)
+
         # Creación del canvas
         self.canvas = Canvas(self)
 
         # Layout
         self.grid(column=0, row=0, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.canvas.grid(column=0, row=0, columnspan=3, rowspan=8, sticky=(tk.N, tk.S, tk.W))
+        self.canvas.grid(column=0, row=0, columnspan=3, rowspan=10, sticky=(tk.N, tk.S, tk.W))
         self.textscale.grid(column=3, row=0, pady=(50, 10), sticky=(tk.S, tk.E, tk.W))
         self.scalechooser.grid(column=4, row=0, pady=(50, 10), sticky=(tk.N, tk.E, tk.W))
         self.textmode.grid(column=3, row=2, pady=(0, 5), sticky=(tk.W))
@@ -95,7 +101,8 @@ class GUI(tk.Frame):
         self.animationspanel.grid(column=3, row=5, columnspan=2, in_=self, sticky=("n"))
         self.playbtn.grid(column=3, row=6, pady=(0, 100), sticky=(tk.E))
         self.stopbtn.grid(column=4, row=6, pady=(0, 100), sticky=(tk.W))
-        self.btnanimation.grid(column=3, row=7, pady=(0, 30), columnspan=2)
+        self.btnanimation.grid(column=3, row=7, pady=(0, 5), columnspan=2)
+        self.btnfractal.grid(column=3, row=8, pady=(0, 30), columnspan=2)
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -166,7 +173,7 @@ class GUI(tk.Frame):
     def setanimationsvalues(self, animations):
         self.animationspanel.delete(*self.animationspanel.get_children())
         for a in animations:
-            self.animationspanel.insert("", tk.END, values=(a.gettype(), a.getstart(), a.getend()))
+            self.animationspanel.insert("", tk.END, values=(list(TIPOS_ANIMACION.keys())[a.gettype()], a.getstart(), a.getend()))
 
     def animationform(self):
 
@@ -189,7 +196,7 @@ class GUI(tk.Frame):
             self.form.vecy = tk.Entry(self.form, width=10, highlightbackground=self.bg)
             self.form.tiposelector.current(0)
             self.form.btnprevisualizar = tk.Button(self.form, text="Previsualizar animación", bg=self.bg,
-                                          highlightbackground=self.bg, padx=5, pady=5, command=self.previsualiza)
+                                                   highlightbackground=self.bg, padx=5, pady=5, command=self.previsualize)
             self.form.btnanhiadir = tk.Button(self.form, text="Añadir animación", bg=self.bg,
                                           highlightbackground=self.bg, padx=5, pady=5, command=self.addanimation)
 
@@ -216,8 +223,48 @@ class GUI(tk.Frame):
             self.form.destroy()
             self.canvas.refresh()
 
-    def previsualiza(self):
+    def previsualize(self):
         if float(self.form.endtime.get()) > float(self.form.starttime.get()) >= 0:
             animation = Animation(self.form.tiposelector.current(), float(self.form.starttime.get()),
                                   float(self.form.endtime.get()), int(self.form.vecx.get()), int(self.form.vecy.get()))
             self.canvas.preview(animation)
+
+    def fractalform(self):
+        if self.getmode() == 0:
+            self.form = tk.Toplevel(master=self.master)
+
+            self.form.configure(bg=self.bg)
+            self.form.tipofractallbl = tk.Label(self.form, text='Tipo', bg=self.bg)
+            self.form.startXlbl = tk.Label(self.form, text='Coordenadas \n Iniciales (x0)', bg=self.bg)
+            self.form.startYlbl = tk.Label(self.form, text='Coordenadas \n Iniciales (y0)', bg=self.bg)
+            self.form.endXlbl = tk.Label(self.form, text='Coordenadas \n Iniciales (x1)', bg=self.bg)
+            self.form.endYlbl = tk.Label(self.form, text='Coordenadas \n Finales (y1)', bg=self.bg)
+            self.form.textfractal = tk.Label(self.form, text='Fractal:', bg=self.bg)
+            self.form.tiposelector = ttk.Combobox(self.form, state="readonly", values=list(TIPOS_FRACTAL.keys()), width=15)
+            self.form.startX = tk.Entry(self.form, width=10, highlightbackground=self.bg)
+            self.form.startY = tk.Entry(self.form, width=10, highlightbackground=self.bg)
+            self.form.endX = tk.Entry(self.form, width=10, highlightbackground=self.bg)
+            self.form.endY = tk.Entry(self.form, width=10, highlightbackground=self.bg)
+            self.form.tiposelector.current(0)
+
+            self.form.btncrear = tk.Button(self.form, text="Crear fractal", bg=self.bg,
+                                          highlightbackground=self.bg, padx=5, pady=5, command=self.addfractal)
+
+            self.form.tipofractallbl.grid(column=1, row=0, pady=(20, 0), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.startXlbl.grid(column=2, row=0, pady=(20, 0), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.startYlbl.grid(column=3, row=0, pady=(20, 0), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.endXlbl.grid(column=4, row=0, pady=(20, 0), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.endYlbl.grid(column=5, row=0, pady=(20, 0), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.textfractal.grid(column=0, row=1, padx=(30, 0), pady=(0, 20), sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.tiposelector.grid(column=1, row=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+            self.form.startX.grid(column=2, row=1, sticky=(tk.N, tk.E, tk.W))
+            self.form.startY.grid(column=3, row=1, sticky=(tk.N, tk.E, tk.W))
+            self.form.endX.grid(column=4, row=1, sticky=(tk.N, tk.E, tk.W))
+            self.form.endY.grid(column=5, row=1, sticky=(tk.N, tk.E, tk.W))
+            self.form.btncrear.grid(column=6, row=1, padx=(0, 30), sticky=(tk.N, tk.E, tk.W))
+
+    def addfractal(self):
+        fractal = Fractal(self.form.tiposelector.current(), int(self.form.startX.get()),
+                              int(self.form.startY.get()), int(self.form.endX.get()), int(self.form.endY.get()), self.getalgorithm(), self.getcolor())
+        self.canvas.addfractal(fractal)
+        self.form.destroy()

@@ -403,3 +403,7 @@ class Canvas(tk.Canvas):
         self.timeiter = float((animacion.getstart() * 1000))
         self.play()
         self.poligonotarget.removeanimacion(animacion)
+
+    def addfractal(self, fractal):
+        self.poligonos.add(deepcopy(fractal))
+        self.refresh()
