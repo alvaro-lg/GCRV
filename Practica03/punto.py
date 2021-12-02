@@ -2,8 +2,8 @@
 class Punto:
 
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
     def getX(self):
         return self.x
