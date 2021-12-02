@@ -3,7 +3,6 @@ import tkinter as tk
 from poligono import Poligono
 from punto import Punto
 from linea import Linea
-from numba import prange
 from constantes import *
 from copy import deepcopy
 from snapshot import Snapshot
@@ -126,7 +125,7 @@ class Canvas(tk.Canvas):
 
             x = int(round(startX, 0))
 
-            for y in prange(startY, endY + sentido, sentido):
+            for y in range(startY, endY + sentido, sentido):
                 puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
         else:
@@ -142,7 +141,7 @@ class Canvas(tk.Canvas):
                 else:
                     sentido = -1
 
-                for x in prange(startX, endX + sentido, sentido):
+                for x in range(startX, endX + sentido, sentido):
                     ytrue = m * x + b
                     y = int(round(ytrue, 0))
                     puntos.append(Punto(x, y))
@@ -154,7 +153,7 @@ class Canvas(tk.Canvas):
                 else:
                     sentido = -1
 
-                for y in prange(startY, endY + sentido, sentido):
+                for y in range(startY, endY + sentido, sentido):
                     xtrue = (y - b) / m
                     x = int(round(xtrue, 0))
                     puntos.append(Punto(x, y))
@@ -181,7 +180,7 @@ class Canvas(tk.Canvas):
 
             x = int(round(startX, 0))
 
-            for y in prange(startY, endY + sentido, sentido):
+            for y in range(startY, endY + sentido, sentido):
                 puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
         else:
@@ -199,7 +198,7 @@ class Canvas(tk.Canvas):
 
                 ytrue = startY
 
-                for x in prange(startX, endX + sentido, sentido):
+                for x in range(startX, endX + sentido, sentido):
                     ytrue = ytrue + (m * sentido)
                     y = int(round(ytrue, 0))
                     puntos.append(Punto(x, y))
@@ -213,7 +212,7 @@ class Canvas(tk.Canvas):
 
                 xtrue = startX
 
-                for y in prange(startY, endY + sentido, sentido):
+                for y in range(startY, endY + sentido, sentido):
                     xtrue = xtrue + ((1 / m) * sentido)
                     x = int(round(xtrue, 0))
                     puntos.append(Punto(x, y))
@@ -242,7 +241,7 @@ class Canvas(tk.Canvas):
 
             x = int(round(startX, 0))
 
-            for y in prange(startY, endY + sentido, sentido):
+            for y in range(startY, endY + sentido, sentido):
                 puntos.append(Punto(x, y))
                 self.pintapixel(x, y, color=color)
 
@@ -273,7 +272,7 @@ class Canvas(tk.Canvas):
 
             numerator = longest >> 1
 
-            for i in prange(0, longest, 1):
+            for i in range(0, longest, 1):
                 puntos.append(Punto(startX, startY))
                 self.pintapixel(startX, startY, color=color)
                 numerator += shortest

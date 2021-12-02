@@ -1,7 +1,7 @@
 import math
 
 from numba import prange
-from constantes import DEBUG, DEFAULT_FRACTAL_ITER
+from constantes import DEBUG
 from linea import Linea
 from poligono import Poligono
 from punto import Punto
@@ -31,9 +31,9 @@ class Fractal(Poligono):
         punto2 = Punto((startX + endX) // 2, endY)
         punto3 = Punto(endX, startY)
 
-        self.createsierpinskyrec(punto1, punto2, punto3, algoritmo, color, DEFAULT_FRACTAL_ITER)
+        self.createsierpinskyrec(punto1, punto2, punto3, algoritmo, color)
 
-    def createsierpinskyrec(self, p1, p2, p3, algoritmo, color, n):
+    def createsierpinskyrec(self, p1, p2, p3, algoritmo, color, n=6):
 
         if n == 0:
             self.addlinea(Linea(p1, p2, algoritmo, color), None)
@@ -53,9 +53,9 @@ class Fractal(Poligono):
     def createkotch(self, startX, startY, endX, endY, algoritmo, color):
         punto1 = Punto(startX, startY)
         punto2 = Punto(endX, startY)
-        self.createkotchrec(punto1, punto2, algoritmo, color, DEFAULT_FRACTAL_ITER)
+        self.createkotchrec(punto1, punto2, algoritmo, color)
 
-    def createkotchrec(self, p1, p4, algoritmo, color, n):
+    def createkotchrec(self, p1, p4, algoritmo, color, n=5):
 
         if n == 0:
             self.addlinea(Linea(p1, p4, algoritmo, color), None)
@@ -90,14 +90,15 @@ class Fractal(Poligono):
                 # Compute the number of iterations
                 m = self.mandelbrot(c)
                 # The color depends on the number of iterations
-                color = 255 - int(m * 255 / DEFAULT_FRACTAL_ITER)
+                color = 255 - int(m * 255 / 256)
                 # Plot the point
-                self.addlinea(Linea(Punto(x + startX, y + startY), Punto(x + startX, y + startY), algoritmo, '#%02x%02x%02x' % (color, color, color)), None)
+                self.addlinea(Linea(Punto(x + startX, y + startY), Punto(x + startX, y + startY), algoritmo,
+                                    '#%02x%02x%02x' % (color, color, color)), None)
 
     def mandelbrot(self, c):
         z = 0
         n = 0
-        while abs(z) <= 2 and n < DEFAULT_FRACTAL_ITER:
+        while abs(z) <= 2 and n < 256:
             z = z * z + c
             n += 1
         return n
@@ -118,15 +119,13 @@ class Fractal(Poligono):
             for y in range(h):
                 zx = 1.5 * (x - w / 2) / (0.5 * zoom * w) + moveX
                 zy = 1.0 * (y - h / 2) / (0.5 * zoom * h) + moveY
-                i = DEFAULT_FRACTAL_ITER
+                i = 300
                 while zx * zx + zy * zy < 4 and i > 1:
                     tmp = zx * zx - zy * zy + cX
                     zy, zx = 2.0 * zx * zy + cY, tmp
                     i -= 1
-
-                # TODO: Fixear
                 # convert byte to RGB (3 bytes), kinda
-                color = 255 - int(i * 255 / DEFAULT_FRACTAL_ITER)
+                color = 255 - int(i * 255 / 300)
                 # Plot the point
                 self.addlinea(Linea(Punto(x + startX, y + startY), Punto(x + startX, y + startY), algoritmo,
-                                    '#%02x%02x%02x' % ((i << 21), (i << 10), i*8)), None)
+                                    '#%02x%02x%02x' % (i, i, i)), None)
