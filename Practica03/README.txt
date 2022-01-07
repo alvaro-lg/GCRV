@@ -1,13 +1,13 @@
 =================================================================================
 
-		Práctica 2: 	Transformaciones 2D
+		Práctica 3: 	
 			- Álvaro López García
 
 =================================================================================
 
 Hola,
 
-Escribo este archivo de texto sólo para comentar un par de detalles sobre mi implementación de la práctica 2. El lenguaje escogido en mi caso ha sido Python y la herramienta gráfica empleada ha sido la librería Tkinter.
+Escribo este archivo de texto sólo para comentar un par de detalles sobre mi implementación de la práctica 3. El lenguaje escogido en mi caso ha sido Python y la herramienta gráfica empleada ha sido la librería Tkinter.
 
 Todas las funcionalidades expuestas en la entrega de la práctica 1 han sido heredadas y ampliadas para soportar las animaciones 2D de esta práctica. El programa ahora también cuenta con soporte para figuras y animaciones.
 
