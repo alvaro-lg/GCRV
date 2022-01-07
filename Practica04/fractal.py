@@ -1,10 +1,6 @@
 import math
 from copy import deepcopy
-
 import numpy as np
-from numpy import random
-
-from numba import prange
 from random import randint
 from constantes import DEBUG, ITERS_FRACTAL, CANVAS_WIDTH, CANVAS_HEIGHT, INIT_SCALE_IFS
 from linea import Linea
@@ -43,7 +39,12 @@ class Fractal:
             5: self.createkotchIFS,
             6: self.createbansleyIFS,
             7: self.createchaosIFS,
-            8: self.createalvaroIFS
+            20: self.createalvaroIFS,
+            8: self.createkotchLSys,
+            9: self.createsierpinskyLSys,
+            10: self.createdragonLSys,
+            11: self.createsierpinskycarpetLSys,
+            12: self.createfractplantLSys
         }
 
         if DEBUG: print('Creando fractal: ' + str(self.type))
@@ -269,7 +270,6 @@ class Fractal:
         for i in range(n):
             transformation = randint(1, len(funciones)) - 1
             newcoords = funciones[transformation][0] @ coords.T + funciones[transformation][1].T
-            print(newcoords)
             self.pixels.append(Linea(Punto(INIT_SCALE_IFS * newcoords[0], INIT_SCALE_IFS * newcoords[1]),
                                      Punto(INIT_SCALE_IFS * newcoords[0], INIT_SCALE_IFS * newcoords[1]),
                                      algoritmo, color))
@@ -317,12 +317,185 @@ class Fractal:
         print(self.pixels[1000:2000])
         self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
 
+    def createkotchLSys(self, startX, startY, endX, endY, algoritmo, color):
+
+        self.pixels = list()
+
+        system_rules = {"F": "F+F-F-F+F"}
+        terminal_symbols = {"+": np.array([[0, -1], [1, 0]]), "-": np.array([[0, 1], [-1, 0]])}
+
+        word = "F"
+
+        for _ in range(ITERS_FRACTAL[self.type]):
+            word_aux = str()
+            for i in range(0, len(word)):
+                if word[i] not in terminal_symbols.keys() and system_rules[word[i]]:
+                    word_aux += system_rules[word[i]]
+                else:
+                    word_aux += word[i]
+            word = word_aux
+
+        dir = np.array([1, 0])
+        coords = np.array([1, 1])
+
+        for i in range(0, len(word)):
+            if word[i] in terminal_symbols.keys():
+                dir = terminal_symbols[word[i]] @ dir.T
+            else:
+                start = coords
+                end = start + dir * INIT_SCALE_IFS
+                self.pixels.append(Linea(Punto(start[0], start[1]), Punto(end[0], end[1]), algoritmo, color))
+                coords = end
+
+        self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
+
+    def createsierpinskyLSys(self, startX, startY, endX, endY, algoritmo, color):
+
+        self.pixels = list()
+
+        system_rules = {"A": "B-A-B", "B": "A+B+A"}
+        terminal_symbols = {"+": np.array([[math.cos(math.radians(60)), -math.sin(math.radians(60))],
+                                           [math.sin(math.radians(60)), math.cos(math.radians(60))]]),
+                            "-": np.array([[math.cos(math.radians(300)), -math.sin(math.radians(300))],
+                                           [math.sin(math.radians(300)), math.cos(math.radians(300))]])}
+
+        word = "A"
+
+        for _ in range(ITERS_FRACTAL[self.type]):
+            word_aux = str()
+            for i in range(0, len(word)):
+                if word[i] not in terminal_symbols.keys() and system_rules[word[i]]:
+                    word_aux += system_rules[word[i]]
+                else:
+                    word_aux += word[i]
+            word = word_aux
+
+        dir = np.array([1, 0])
+        coords = np.array([1, 1])
+
+        for i in range(0, len(word)):
+            if word[i] in terminal_symbols.keys():
+                dir = terminal_symbols[word[i]] @ dir.T
+            else:
+                start = coords
+                end = start + dir * INIT_SCALE_IFS
+                self.pixels.append(Linea(Punto(start[0], start[1]), Punto(end[0], end[1]), algoritmo, color))
+                coords = end
+
+        self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
+
+    def createdragonLSys(self, startX, startY, endX, endY, algoritmo, color):
+
+        self.pixels = list()
+
+        system_rules = {"X": "X+YF+", "Y": "-FX-Y"}
+        terminal_symbols = {"+": np.array([[0, -1], [1, 0]]), "-": np.array([[0, 1], [-1, 0]])}
+
+        word = "FX"
+
+        for _ in range(ITERS_FRACTAL[self.type]):
+            word_aux = str()
+            for i in range(0, len(word)):
+                if word[i] not in terminal_symbols.keys() and word[i] in system_rules.keys():
+                    word_aux += system_rules[word[i]]
+                else:
+                    word_aux += word[i]
+            word = word_aux
+
+        dir = np.array([1, 0])
+        coords = np.array([1, 1])
+
+        for i in range(0, len(word)):
+            if word[i] in terminal_symbols.keys():
+                dir = terminal_symbols[word[i]] @ dir.T
+            elif word[i] == "F":
+                start = coords
+                end = start + dir * INIT_SCALE_IFS
+                self.pixels.append(Linea(Punto(start[0], start[1]), Punto(end[0], end[1]), algoritmo, color))
+                coords = end
+
+        self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
+
+    def createsierpinskycarpetLSys(self, startX, startY, endX, endY, algoritmo, color):
+
+        self.pixels = list()
+
+        system_rules = {"f": "f+f-f-f-g+f+f+f-f", "g": "ggg"}
+        terminal_symbols = {"+": np.array([[0, -1], [1, 0]]), "-": np.array([[0, 1], [-1, 0]])}
+
+        word = "f"
+
+        for _ in range(ITERS_FRACTAL[self.type]):
+            word_aux = str()
+            for i in range(0, len(word)):
+                if word[i] not in terminal_symbols.keys() and word[i] in system_rules.keys():
+                    word_aux += system_rules[word[i]]
+                else:
+                    word_aux += word[i]
+            word = word_aux
+
+        dir = np.array([1, 0])
+        coords = np.array([1, 1])
+
+        for i in range(0, len(word)):
+            if word[i] in terminal_symbols.keys():
+                dir = terminal_symbols[word[i]] @ dir.T
+            else:
+                start = coords
+                end = start + dir * INIT_SCALE_IFS
+                self.pixels.append(Linea(Punto(start[0], start[1]), Punto(end[0], end[1]), algoritmo, color))
+                coords = end
+
+        self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
+
+    def createfractplantLSys(self, startX, startY, endX, endY, algoritmo, color):
+
+        self.pixels = list()
+
+        system_rules = {"F": "FF", 'X': 'F-[[X]+X]+F[+FX]-X'}
+        terminal_symbols = {"+": np.array([[math.cos(math.radians(25)), -math.sin(math.radians(25))],
+                                           [math.sin(math.radians(25)), math.cos(math.radians(25))]]),
+                            "-": np.array([[math.cos(math.radians(335)), -math.sin(math.radians(335))],
+                                           [math.sin(math.radians(335)), math.cos(math.radians(335))]])}
+
+        word = "X"
+
+        for _ in range(ITERS_FRACTAL[self.type]):
+            word_aux = str()
+            for i in range(0, len(word)):
+                if word[i] not in terminal_symbols.keys() and word[i] in system_rules.keys():
+                    word_aux += system_rules[word[i]]
+                else:
+                    word_aux += word[i]
+            word = word_aux
+
+        dir = np.array([0., 1.])
+        coords = np.array([1., 1.])
+        lapiz = [coords, dir]
+        stack = []
+
+        for i in range(0, len(word)):
+
+            if word[i] in terminal_symbols.keys():
+                lapiz[1] = terminal_symbols[word[i]] @ lapiz[1].T
+            if word[i] == "[":
+                stack.append(deepcopy(lapiz))
+            if word[i] == "]":
+                lapiz = stack.pop()
+            else:
+                start = lapiz[0]
+                end = start + lapiz[1] * INIT_SCALE_IFS
+                self.pixels.append(Linea(Punto(start[0], start[1]), Punto(end[0], end[1]), algoritmo, color))
+                lapiz[0] = end
+
+        self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
+
     def standarizeIFSpoints(self, startX, startY, endX, endY, algoritmo, color):
 
-        maxX = max(i.getstart().getX() for i in self.pixels)
-        maxY = max(i.getstart().getY() for i in self.pixels)
-        minX = min(i.getstart().getX() for i in self.pixels)
-        minY = min(i.getstart().getY() for i in self.pixels)
+        maxX = max(max(i.getstart().getX(), i.getend().getX()) for i in self.pixels)
+        maxY = max(max(i.getstart().getY(), i.getend().getY()) for i in self.pixels)
+        minX = min(min(i.getstart().getX(), i.getend().getX()) for i in self.pixels)
+        minY = min(min(i.getstart().getY(), i.getend().getY()) for i in self.pixels)
         pixelsaux = deepcopy(self.pixels)
         self.pixels = list()
 
@@ -332,7 +505,10 @@ class Fractal:
         for linea in pixelsaux:
 
             oldstartX, oldstartY = linea.getstart().getX(), linea.getstart().getY()
+            oldendX, oldendY = linea.getend().getX(), linea.getend().getY()
             newstartX = (oldstartX + abs(minX)) * scaleX - abs(startX)
+            newendX = (oldendX + abs(minX)) * scaleX - abs(startX)
             newstartY = (oldstartY + abs(minY)) * scaleY - abs(startY)
+            newendY = (oldendY + abs(minY)) * scaleY - abs(startY)
 
-            self.pixels.append(Linea(Punto(newstartX, newstartY), Punto(newstartX, newstartY), algoritmo, color))
+            self.pixels.append(Linea(Punto(newstartX, newstartY), Punto(newendX, newendY), algoritmo, color))

@@ -19,7 +19,9 @@ TIPOS_ANIMACION = {"Translation" : 0, "Scaling" : 1, "Rotation" : 2, "Shearing" 
 TIPOS_FRACTAL = {"Triangulo de Sierpinsky" : 0, "Curva de Kotch" : 1, "Mandelbrot" : 2,  "Julia" : 3,
                  "Triangulo de Sierpinsky (IFS)" : 4, "Curva de Kotch (IFS)" : 5, "Barnsley's Fern (IFS)" : 6,
                  "Chaos (IFS)" : 7,
-                 #"Alvaro (IFS)" : 8
+                 #"Alvaro (IFS)" : 20
+                 "Curva de Kotch (L-Sistema)" : 8, "Triangulo de Sierpinsky (L-Sistema)" : 9, "Curva del Dragon (L-Sistema)" : 10,
+                 "Alfombra de Sierpinsky (L-Sistema)" : 11, "Planta Fractal (L-Sistema)" : 12
                  }
-ITERS_FRACTAL = {0: 6, 1: 5, 2: 256, 3: 256, 4: 30000, 5: 30000, 6: 500000, 7: 30000, 8: 1000}
+ITERS_FRACTAL = {0: 6, 1: 5, 2: 256, 3: 256, 4: 30000, 5: 30000, 6: 500000, 7: 30000, 20: 1000, 8: 3, 9: 5, 10: 10, 11: 5, 12: 5}
 INIT_SCALE_IFS = 1000

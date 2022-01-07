@@ -240,7 +240,7 @@ class GUI(tk.Frame):
             self.form.endXlbl = tk.Label(self.form, text='Coordenadas \n Finales (x1)', bg=self.bg)
             self.form.endYlbl = tk.Label(self.form, text='Coordenadas \n Finales (y1)', bg=self.bg)
             self.form.textfractal = tk.Label(self.form, text='Fractal:', bg=self.bg)
-            self.form.tiposelector = ttk.Combobox(self.form, state="readonly", values=list(TIPOS_FRACTAL.keys()), width=15)
+            self.form.tiposelector = ttk.Combobox(self.form, state="readonly", values=list(TIPOS_FRACTAL.keys()), width=25)
             self.form.startX = tk.Entry(self.form, width=10, highlightbackground=self.bg)
             self.form.startY = tk.Entry(self.form, width=10, highlightbackground=self.bg)
             self.form.endX = tk.Entry(self.form, width=10, highlightbackground=self.bg)
