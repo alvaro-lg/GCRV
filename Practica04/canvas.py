@@ -320,8 +320,14 @@ class Canvas(tk.Canvas):
 
     def pintapoligonos(self, poligonos):
         for poligono in poligonos:
+            lineas = poligono.getlineas()
             for linea in poligono.getlineas().keys():
-                poligono.addlinea(linea, self.pintalinea(linea))
+                if lineas[linea] is None:
+                    poligono.addlinea(linea, self.pintalinea(linea))
+                else:
+                    puntos = lineas[linea]
+                    for punto in puntos:
+                        self.pintapixel(punto.getX(), punto.getY(), color=linea.getcolor())
 
     def pintafractales(self):
         for fractal in self.fractales:
