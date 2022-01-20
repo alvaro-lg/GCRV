@@ -39,12 +39,12 @@ class Fractal:
             5: self.createkotchIFS,
             6: self.createbansleyIFS,
             7: self.createchaosIFS,
-            20: self.createalvaroIFS,
-            8: self.createkotchLSys,
-            9: self.createsierpinskyLSys,
-            10: self.createdragonLSys,
-            11: self.createsierpinskycarpetLSys,
-            12: self.createfractplantLSys
+            8: self.createalvaroIFS,
+            9: self.createkotchLSys,
+            10: self.createsierpinskyLSys,
+            11: self.createdragonLSys,
+            12: self.createsierpinskycarpetLSys,
+            13: self.createfractplantLSys
         }
 
         if DEBUG: print('Creando fractal: ' + str(self.type))
@@ -279,42 +279,41 @@ class Fractal:
 
     def createalvaroIFS(self, startX, startY, endX, endY, algoritmo, color):
 
-        funciones = [np.array([[0.07175926, 0., 0.], [0.13888889, 0.16666667, 0.], [0., 0., 1.]]),
-                    np.array([[0.07175926, 0., 0.07175926], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]]),
-                    np.array([[0.05740741, 0., 0.04305556], [0., 0.16666667, 0.05555556], [0., 0., 1.]]),
-                    np.array([[8.78797472e-18, 1.43518519e-01, 1.71296296e-01], [-1.66666667e-01, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]]),
-                    np.array([[0.11959877, 0., 0.19521605], [0., 0.16666667, 0. ], [0., 0., 1.]]),
-                    np.array([[0.07175926, 0., 0.34259259], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]]),
-                    np.array([[0.07175926, 0., 0.41435185], [0.13888889, 0.16666667, 0.], [0., 0., 1.]]),
-                    np.array([[0.07175926, 0., 0.51388889], [0.13888889, 0.16666667, 0.], [0., 0.9, 1.]]),
-                    np.array([[0.07175926, 0., 0.58564815], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]]),
-                    np.array([[8.78797472e-18, 1.43518519e-01, 6.85185185e-01], [-1.66666667e-01, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]]),
-                    np.array([[0.09567901, 0., 0.70910494], [0., 0.125, 0.14583333], [0., 0., 1.]]),
-                    np.array([[4.39398736e-18, 1.43518519e-01, 8.04783951e-01], [-8.33333333e-02, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]]),
-                    np.array([[0.09567901, 0., 0.70910494], [0., 0.125, 0.08333333], [0., 0., 1.]]),
-                    np.array([[0.11959877, 0., 0.70910494], [-0.05555556, 0.16666667, 0.05555556], [0., 0., 1.]]),
-                    np.array([[0.09567901, 0., 0.88040123], [0., 0.16666667, 0.], [0., 0., 1.]]),
-                    np.array([[8.78797472e-18, -1.43518519e-01, 1.00000000e+00], [1.66666667e-01, 1.02053900e-17, 0.00000000e+00], [0., 0., 1.]]),
-                    np.array([[0.09567901, 0., 0.88040123], [0., 0.16666667, 0.13888889], [0., 0., 1.]]),
-                    np.array([[8.78797472e-18, -1.43518519e-01, 8.80401235e-01], [1.66666667e-01, 1.02053900e-17, 0.00000000e+00], [0., 0., 1.]])]
+        funciones = [np.array([[0.07175926, 0., 0.], [0.13888889, 0.16666667, 0.], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.07175926, 0., 0.07175926], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.05740741, 0., 0.04305556], [0., 0.16666667, 0.05555556], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[8.78797472e-18, 1.43518519e-01, 1.71296296e-01], [-1.66666667e-01, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.11959877, 0., 0.19521605], [0., 0.16666667, 0. ], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.07175926, 0., 0.34259259], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.07175926, 0., 0.41435185], [0.13888889, 0.16666667, 0.], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.07175926, 0., 0.51388889], [0.13888889, 0.16666667, 0.], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.07175926, 0., 0.58564815], [-0.13888889, 0.16666667, 0.13888889], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[8.78797472e-18, 1.43518519e-01, 6.85185185e-01], [-1.66666667e-01, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.09567901, 0., 0.70910494], [0., 0.125, 0.14583333], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[4.39398736e-18, 1.43518519e-01, 8.04783951e-01], [-8.33333333e-02, 1.02053900e-17, 1.66666667e-01], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.09567901, 0., 0.70910494], [0., 0.125, 0.08333333], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.11959877, 0., 0.70910494], [-0.05555556, 0.16666667, 0.05555556], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.09567901, 0., 0.88040123], [0., 0.16666667, 0.], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[8.78797472e-18, -1.43518519e-01, 1.00000000e+00], [1.66666667e-01, 1.02053900e-17, 0.00000000e+00], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[0.09567901, 0., 0.88040123], [0., 0.16666667, 0.13888889], [0., 0., 1.]], dtype=np.float64),
+                    np.array([[8.78797472e-18, -1.43518519e-01, 8.80401235e-01], [1.66666667e-01, 1.02053900e-17, 0.00000000e+00], [0., 0., 1.]], dtype=np.float64)]
 
         self.pixels = list()
         n = ITERS_FRACTAL[self.type]
-        coords = np.array([0, 0, 1])
+        coords = np.array([0, 0, 1], dtype=np.float64)
         head_start = 100
 
+        offset = 1
+
         for i in range(head_start):  # do `head_start` iterations to start converging
-            coords = (funciones[randint(1, len(funciones)) - 1]) @ coords
+            coords = (funciones[randint(0, len(funciones)) - 1]) @ coords
 
         for i in range(n):
-            newcoords = (funciones[randint(1, len(funciones)) - 1]) @ coords
-            print(newcoords)
-            self.pixels.append(Linea(Punto(INIT_SCALE_IFS * newcoords[0], INIT_SCALE_IFS * newcoords[1]),
-                                     Punto(INIT_SCALE_IFS * newcoords[0], INIT_SCALE_IFS * newcoords[1]),
+            coords = (funciones[randint(0, len(funciones)) - 1]) @ coords
+            self.pixels.append(Linea(Punto(INIT_SCALE_IFS * coords[0], INIT_SCALE_IFS * coords[1]),
+                                     Punto(INIT_SCALE_IFS * coords[0], INIT_SCALE_IFS * coords[1]),
                                      algoritmo, color))
-            coords = newcoords
 
-        print(self.pixels[1000:2000])
         self.standarizeIFSpoints(startX, startY, endX, endY, algoritmo, color)
 
     def createkotchLSys(self, startX, startY, endX, endY, algoritmo, color):
